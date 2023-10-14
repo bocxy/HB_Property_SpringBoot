@@ -202,7 +202,8 @@ RESPONSE -
   "applicationFee": 100,
   "registrationFee":50,
   "amountPaid":10000,
-  "unitNId": 1
+  "unitNId": 1,
+  "schemeNId":1
 }
 
 

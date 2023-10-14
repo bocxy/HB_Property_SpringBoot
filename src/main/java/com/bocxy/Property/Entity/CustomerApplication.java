@@ -10,6 +10,7 @@ import javax.persistence.*;
 
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
+
         @Column(name = "N_ID")
         private Long N_ID;
 
@@ -97,8 +98,8 @@ import javax.persistence.*;
         @Column(name = "JOINT_APPLICANT_AGE")
         private int jointApplicantAge;
 
-         @Column(name = "JOINT_APPLICANT_AADHAR")
-         private String jointApplicantAadhar;
+        @Column(name = "JOINT_APPLICANT_AADHAR")
+        private String jointApplicantAadhar;
 
         @Column(name = "JOINT_APPLICANT_FATHERNAME")
         private String jointApplicantFathername;
@@ -160,6 +161,9 @@ import javax.persistence.*;
         @Column(name = "UNIT_N_ID")
         private Long unitNId;
 
+        @Column(name = "SCHEME_N_ID")
+        private Long schemeNId;
+
         @Transient
         private String nativeOfTamilnadu;
 
@@ -187,62 +191,58 @@ import javax.persistence.*;
         @Transient
         private String photo;
 
+        @Column(name = "NATIVE_OF_TAMILNADU_FILENAME")
+        private String nativeOfTamilnadu_filename;
 
+        @Column(name = "NATIVE_OF_TAMILNADU_FILEPATH")
+        private String nativeOfTamilnadu_filepath;
 
-    @Column(name = "NATIVE_OF_TAMILNADU_FILENAME")
-    private String nativeOfTamilnadu_filename;
+        @Column(name = "BIRTH_CERTIFICATE_FILENAME")
+        private String birthCertificate_filename;
 
-    @Column(name = "NATIVE_OF_TAMILNADU_FILEPATH")
-    private String nativeOfTamilnadu_filepath;
+        @Column(name = "BIRTH_CERTIFICATE_FILEPATH")
+        private String birthCertificate_filepath;
 
-    @Column(name = "BIRTH_CERTIFICATE_FILENAME")
-    private String birthCertificate_filename;
+        @Column(name = "AADHAAR_PROOF_FILENAME")
+        private String aadhaarProof_filename;
 
-    @Column(name = "BIRTH_CERTIFICATE_FILEPATH")
-    private String birthCertificate_filepath;
+        @Column(name = "AADHAAR_PROOF_FILEPATH")
+        private String aadhaarProof_filepath;
 
-    @Column(name = "AADHAAR_PROOF_FILENAME")
-    private String aadhaarProof_filename;
+        @Column(name = "PAN_PROOF_FILENAME")
+        private String panProof_filename;
 
-    @Column(name = "AADHAAR_PROOF_FILEPATH")
-    private String aadhaarProof_filepath;
+        @Column(name = "PAN_PROOF_FILEPATH")
+        private String panProof_filepath;
 
-    @Column(name = "PAN_PROOF_FILENAME")
-    private String panProof_filename;
+        @Column(name = "INCOME_CERTIFICATE_FILENAME")
+        private String incomeCertificate_filename;
 
-    @Column(name = "PAN_PROOF_FILEPATH")
-    private String panProof_filepath;
+        @Column(name = "INCOME_CERTIFICATE_FILEPATH")
+        private String incomeCertificate_filepath;
 
-    @Column(name = "INCOME_CERTIFICATE_FILENAME")
-    private String incomeCertificate_filename;
+        @Column(name = "RESERVATION_CATEGORY_PROOF_FILENAME")
+        private String reservationCategoryProof_filename;
 
-    @Column(name = "INCOME_CERTIFICATE_FILEPATH")
-    private String incomeCertificate_filepath;
+        @Column(name = "RESERVATION_CATEGORY_PROOF_FILEPATH")
+        private String reservationCategoryProof_filepath;
 
-    @Column(name = "RESERVATION_CATEGORY_PROOF_FILENAME")
-    private String reservationCategoryProof_filename;
+        @Column(name = "RESERVATION_SUB_CATEGORY_PROOF_FILENAME")
+        private String reservationSubCategoryProof_filename;
 
-    @Column(name = "RESERVATION_CATEGORY_PROOF_FILEPATH")
-    private String reservationCategoryProof_filepath;
+        @Column(name = "RESERVATION_SUB_CATEGORY_PROOF_FILEPATH")
+        private String reservationSubCategoryProof_filepath;
 
-    @Column(name = "RESERVATION_SUB_CATEGORY_PROOF_FILENAME")
-    private String reservationSubCategoryProof_filename;
+        @Column(name = "SIGNATURE_FILENAME")
+        private String signature_filename;
 
-    @Column(name = "RESERVATION_SUB_CATEGORY_PROOF_FILEPATH")
-    private String reservationSubCategoryProof_filepath;
+        @Column(name = "SIGNATURE_FILEPATH")
+        private String signature_filepath;
 
-    @Column(name = "SIGNATURE_FILENAME")
-    private String signature_filename;
+        @Column(name = "PHOTO_FILENAME")
+        private String photo_filename;
 
-    @Column(name = "SIGNATURE_FILEPATH")
-    private String signature_filepath;
-
-    @Column(name = "PHOTO_FILENAME")
-    private String photo_filename;
-
-    @Column(name = "PHOTO_FILEPATH")
-    private String photo_filepath;
-
-
+        @Column(name = "PHOTO_FILEPATH")
+        private String photo_filepath;
 
 }
