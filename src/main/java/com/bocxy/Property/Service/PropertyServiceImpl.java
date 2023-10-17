@@ -537,27 +537,35 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public List<WebsiteData> saveWebsiteData(List<WebsiteData> websiteDataList) {
         List<WebsiteData> savedWebsiteDataList = new ArrayList<>();
-
+        List<String> savedPhotos = new ArrayList<>();
         for (WebsiteData websiteData : websiteDataList) {
-            if (websiteData.getFPhoto() != null) {
-                String base64FileData = websiteData.getFPhoto();
-                byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
-                String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+            List<String> photoList = websiteData.getFPhoto();
+            if (photoList != null && !photoList.isEmpty()) {
 
-                File destFolder = new File(uploadDir);
-                if (!destFolder.exists()) {
-                    destFolder.mkdirs();
+                for (String base64FileData : photoList) {
+                    byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+                    String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+
+                    File destFolder = new File(uploadDir);
+                    if (!destFolder.exists()) {
+                        destFolder.mkdirs();
+                    }
+
+                    File dest = new File(destFolder, generatedFileName);
+
+                    try {
+                        Files.write(dest.toPath(), decodedFileData);
+                        savedPhotos.add(dest.getAbsolutePath());
+                    } catch (IOException e) {
+                        // Handle the exception
+                    }
+
+
                 }
+                websiteData.setFPhoto(savedPhotos);
 
-                File dest = new File(destFolder, generatedFileName);
-
-                try {
-                    Files.write(dest.toPath(), decodedFileData);
-                    websiteData.setFPhoto(dest.getAbsolutePath());
-                } catch (IOException e) {
-
-                }
             }
+
             if (websiteData.getFFloorPlanPicture() != null) {
                 String base64FileData = websiteData.getFFloorPlanPicture();
                 byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
@@ -646,7 +654,6 @@ public class PropertyServiceImpl implements PropertyService {
         return savedWebsiteDataList;
     }
 
-
     @Override
     public List<WebsiteData> getWebsiteData() {
         return websiteDataRepo.findAll();
@@ -678,9 +685,46 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public Map<String, Object> getSchemeDataBySchemeId(Long schemeId) {
+        List<Map<String, Object>> originalData = websiteDataRepo.findSchemeDataBySchemeId(schemeId);
 
-        return websiteDataRepo.findSchemeDataBySchemeId(schemeId);
+        // Create a new map to store the transformed data
+        Map<String, Object> transformedData = new HashMap<>();
+
+        if (!originalData.isEmpty()) {
+            Map<String, Object> firstData = originalData.get(0);
+
+            transformedData.put("v_division", firstData.get("v_division"));
+            transformedData.put("v_poc_mobile", firstData.get("v_poc_mobile"));
+            transformedData.put("v_poc_name", firstData.get("v_poc_name"));
+            transformedData.put("n_no_of_ews_units", firstData.get("n_no_of_ews_units"));
+            transformedData.put("n_total_unsold_units", firstData.get("n_total_unsold_units"));
+            transformedData.put("v_project_description", firstData.get("v_project_description"));
+            transformedData.put("n_no_of_lig_units", firstData.get("n_no_of_lig_units"));
+            transformedData.put("n_scheme_id", firstData.get("n_scheme_id"));
+            transformedData.put("f_floor_plan_picture", firstData.get("f_floor_plan_picture"));
+            transformedData.put("v_geo_tag_link", firstData.get("v_geo_tag_link"));
+            transformedData.put("v_scheme_name", firstData.get("v_scheme_name"));
+            transformedData.put("f_video", firstData.get("f_video"));
+            transformedData.put("v_unit_type", firstData.get("v_unit_type"));
+            transformedData.put("v_unit_allotted_status", firstData.get("v_unit_allotted_status"));
+
+            List<String> photoList = new ArrayList<>();
+
+            for (Map<String, Object> data : originalData) {
+                photoList.add((String) data.get("f_photo"));
+            }
+
+            transformedData.put("f_photo", photoList);
+            transformedData.put("n_no_of_hig_units", firstData.get("n_no_of_hig_units"));
+            transformedData.put("v_amenities", firstData.get("v_amenities"));
+            transformedData.put("n_no_of_mig_units", firstData.get("n_no_of_mig_units"));
+            transformedData.put("f_poc_picture", firstData.get("f_poc_picture"));
+            transformedData.put("v_poc_email", firstData.get("v_poc_email"));
+        }
+
+        return transformedData;
     }
+
 
     @Override
     public void deleteWebsiteData(Long id) {

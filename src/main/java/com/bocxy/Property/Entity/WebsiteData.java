@@ -4,6 +4,8 @@ package com.bocxy.Property.Entity;
 import javax.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name="WebsiteData")
@@ -16,8 +18,10 @@ public class WebsiteData {
     @Column(name="nSchemeId")
     private Long nSchemeId;
 
-    @Column(name="fPhoto")
-    private String fPhoto;
+    @ElementCollection
+    @CollectionTable(name = "FPhotoCollection", joinColumns = @JoinColumn(name = "N_ID"))
+    @Column(name = "fPhoto")
+    private List<String> fPhoto;
 
     @Column(name="fVideo")
     private String fVideo;
