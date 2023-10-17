@@ -782,6 +782,8 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+
+
     //Enquiry
     public String sendMailToCustomer(Enquiry enquiry, String vPocEmail, String vEmail) {
         String infoMsg = "Success";
@@ -1195,6 +1197,37 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public List<SchemeData> getAllWebsite() {
         return schemeDataRepo.findAll();
+    }
+
+
+    @Override
+    public List<Map<String, Object>> getAllSchemeForWebsite() {
+        List<Object[]> schemeData = schemeDataRepo.findSchemeDetail();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Object[] row : schemeData) {
+            Map<String, Object> propertyMap = new HashMap<>();
+            propertyMap.put("N_ID", row[0]);        // Scheme N_ID
+            propertyMap.put("From_Date", row[1]);
+            propertyMap.put("To_Date", row[2]);
+            propertyMap.put("Reservation_Status", row[3]);
+            propertyMap.put("Project_Status", row[4]);
+            propertyMap.put("Circle",  row[5]);
+            propertyMap.put("Division",  row[6]);
+            propertyMap.put("District",  row[7]);
+            propertyMap.put("Scheme_Name",  row[8]);
+            propertyMap.put("Unit_Type",  row[9]);
+            propertyMap.put("Scheme_Type",  row[10]);
+            propertyMap.put("Total_Units",  row[11]);
+            propertyMap.put("Allotted_Units",  row[12]);
+            propertyMap.put("Unsold_Units",  row[13]);
+            propertyMap.put("Selling_Extent",  row[14]);
+            propertyMap.put("Photo",  row[15]);
+
+            result.add(propertyMap);
+        }
+
+        return result;
     }
 
 

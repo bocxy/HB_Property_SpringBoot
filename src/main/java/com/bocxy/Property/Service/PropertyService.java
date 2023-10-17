@@ -62,6 +62,8 @@ public interface PropertyService {
 
     List<WebsiteModel>getAllWebsiteData();
 
+    List<Map<String, Object>> getAllSchemeForWebsite();
+
     Map<String, Object> getSchemeDataBySchemeId(Long schemeId);
 
     void deleteWebsiteData(Long id);

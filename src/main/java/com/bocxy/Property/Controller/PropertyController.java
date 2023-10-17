@@ -605,7 +605,7 @@ public class PropertyController {
                                     HttpServletResponse response) {
         Long id = json.getAsNumber("id").longValue();
         try {
-            List<SchemeData> allWebsite = propertyService.getAllSchemeData();
+            List<Map<String, Object>> allWebsite = propertyService.getAllSchemeForWebsite();
 
             if (allWebsite != null) {
                 return responseDo.setSuccessResponse(allWebsite);
@@ -618,6 +618,7 @@ public class PropertyController {
             return responseDo.setFailureResponse("An error occurred");
         }
     }
+
     //Save Application
    @PostMapping("/saveCustomerApplication")
     public ResponseDo saveCustomerApplication(@RequestBody CustomerApplication customerApplication) {

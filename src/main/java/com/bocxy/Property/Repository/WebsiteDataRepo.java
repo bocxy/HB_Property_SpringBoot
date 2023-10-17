@@ -6,7 +6,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 public interface WebsiteDataRepo extends JpaRepository<WebsiteData, Long> {
@@ -34,8 +33,7 @@ public interface WebsiteDataRepo extends JpaRepository<WebsiteData, Long> {
                     "sd.N_NO_OF_LIG_UNITS AS n_no_of_lig_units, " +
                     "sd.N_NO_OF_EWS_UNITS AS n_no_of_ews_units, " +
                     "sd.V_UNIT_TYPE AS v_unit_type, " +
-                    "ud.N_SCHEME_ID AS n_scheme_id, " +
-                    "ud.V_UNIT_ALLOTTED_STATUS AS v_unit_allotted_status, " +
+
                     "wd.f_poc_picture AS f_poc_picture, " +
                     "wd.v_poc_mobile AS v_poc_mobile, " +
                     "wd.v_poc_name AS v_poc_name, " +
@@ -47,20 +45,13 @@ public interface WebsiteDataRepo extends JpaRepository<WebsiteData, Long> {
                     "wd.f_floor_plan_picture AS f_floor_plan_picture, " +
                     "fpc.f_photo AS f_photo " +
                     "FROM scheme_data sd " +
-                    "JOIN unit_data ud ON sd.N_ID = ud.N_SCHEME_ID " +
-                    "JOIN website_data wd ON ud.N_SCHEME_ID = wd.N_SCHEME_ID " +
+
+                    "JOIN website_data wd ON sd.N_ID = wd.N_SCHEME_ID " +
                     "LEFT JOIN fphoto_collection fpc ON wd.N_ID = fpc.N_ID " +
                     "WHERE sd.N_ID = :schemeId")
     List<Map<String, Object>> findSchemeDataBySchemeId(@Param("schemeId") Long schemeId);
 
-//    @Query(value = "SELECT DISTINCT ud.N_ID AS n_apartment_no, " +
-//            "ud.N_SCHEME_ID AS scheme_id"+
-//            "ud.V_FLOOR_NO AS v_floor_no," +
-//            "ud.V_BLOCK_NO AS v_block_no" +
-//    "FROM scheme_data sd JOIN unit_data ud ON sd.N_ID = ud.N_SCHEME_ID JOIN website_data wd ON ud.N_SCHEME_ID = wd.N_SCHEME_ID"+
-//            "WHERE ud.V_UNIT_ALLOTTED_STATUS = 'no' AND sd.V_UNIT_TYPE='Flat' AND sd.N_ID = :schemeId", nativeQuery = true )
-//
-//    Map<String, Object> findUnitDetailsBySchemeId(@Param("schemeId") Long schemeId);
+
 
     @Query(value = "SELECT DISTINCT ud.N_ID AS n_apartment_no, " +
             "ud.N_SCHEME_ID AS scheme_id, " + // Added a comma here
