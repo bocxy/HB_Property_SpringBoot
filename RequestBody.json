@@ -251,3 +251,17 @@ GET APPLICATIONS LIST OF SINGLE CUSTOMER
   "reservation" : "NO"
 
 }
+
+
+//Block/Floor Booking
+/getBlockFloorUnitDetails
+
+{
+  "schemeId":24
+}
+
+//Block/Floor Booking All Scheme
+/getBlockFloorUnitAllSchemes
+{
+  "id":1
+}

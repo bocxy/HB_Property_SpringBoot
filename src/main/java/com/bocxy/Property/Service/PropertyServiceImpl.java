@@ -1461,65 +1461,122 @@ public class PropertyServiceImpl implements PropertyService {
     public List<Map<String, Object>> getPropertyData(Long scheme) {
         List<Map<String, Object>> formattedOutput = new ArrayList<>();
         List<Object[]> queryResults = unitDataRepo.findPropertyData(scheme);
-        Map<String, Map<String, Object>> blockMap = new HashMap<>();
+
+        Map<String, Map<String, Object>> schemeMap = new HashMap<>();
 
         for (Object[] row : queryResults) {
-            String block = (String) row[0];
-            String type = (String) row[1];
-            String status = (String) row[4];
-            Long nId = (Long) row[5];
-            String cost = (String) row[6];
+            String schemeCode = (String) row[0];
+            String schemeName = (String) row[1];
+            String type = (String) row[2];
+            String unitType = (String) row[3];
+            int totalUnits = ((Number) row[4]).intValue();
+            String unit = (String) row[5];
+            String floor = (String) row[6];
+            String block = (String) row[7];
+            String status = (String) row[8];
+            int nId = ((Number) row[9]).intValue();
+            String unitCost = (String) row[10];
 
-            Map<String, Object> currentBlock = blockMap.get(block);
-            if (currentBlock == null) {
-                currentBlock = new HashMap<>();
-                currentBlock.put("Block", block);
-                currentBlock.put("Type", type);
-                currentBlock.put("Sold", 0);
-                currentBlock.put("Unsold", 0);
-                currentBlock.put("Booked", 0);
-                currentBlock.put("floors", new ArrayList<>());
-                blockMap.put(block, currentBlock);
-                formattedOutput.add(currentBlock);
+            Map<String, Object> currentScheme = schemeMap.get(schemeCode);
+
+            if (currentScheme == null) {
+                currentScheme = new HashMap<>();
+                currentScheme.put("scheme_code", schemeCode);
+                currentScheme.put("scheme_name", schemeName);
+                currentScheme.put("Type", type);
+                currentScheme.put("UnitType", unitType);
+                currentScheme.put("total_units", totalUnits);
+                currentScheme.put("Unsold", 0);
+                currentScheme.put("Sold", 0);
+                currentScheme.put("units", new ArrayList<>());
+                schemeMap.put(schemeCode, currentScheme);
+                formattedOutput.add(currentScheme);
             }
 
-            String floor = (String) row[2];
-            Map<String, Object> currentFloor = null;
-
-            for (Map<String, Object> floorMap : (List<Map<String, Object>>) currentBlock.get("floors")) {
-                if (floor.equals(floorMap.get("floor"))) {
-                    currentFloor = floorMap;
-                    break;
-                }
+            Map<String, Object> unitData = new HashMap<>();
+            unitData.put("unit", unit);
+            if (floor != null) {
+                unitData.put("floor", floor);
             }
-
-            if (currentFloor == null) {
-                currentFloor = new HashMap<>();
-                currentFloor.put("floor", floor);
-                currentFloor.put("units", new ArrayList<>());
-                ((List<Map<String, Object>>) currentBlock.get("floors")).add(currentFloor);
+            if (block != null) {
+                unitData.put("block", block);
             }
-
-            Map<String, Object> unit = new HashMap<>();
-            unit.put("unit_no", row[3]);
-            unit.put("status", status);
-            unit.put("n_id", nId);
-            unit.put("unit_cost", cost);
-            ((List<Map<String, Object>>) currentFloor.get("units")).add(unit);
+            unitData.put("status", status);
+            unitData.put("n_id", nId);
+            unitData.put("unit_cost", unitCost);
+            ((List<Map<String, Object>>) currentScheme.get("units")).add(unitData);
 
             // Update Sold and Unsold counts
-            if (status.equalsIgnoreCase("yes")) {
-                currentBlock.put("Sold", (int) currentBlock.get("Sold") + 1);
-            } else if (status.equalsIgnoreCase("no")) {
-                currentBlock.put("Unsold", (int) currentBlock.get("Unsold") + 1);
-            }else if (status.equalsIgnoreCase("pending")) {
-                currentBlock.put("Booked", (int) currentBlock.get("Booked") + 1);
+            if ("no".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
+                currentScheme.put("Unsold", (int) currentScheme.get("Unsold") + 1);
             }
+            currentScheme.put("Sold", totalUnits - ((int) currentScheme.get("Unsold") ));
         }
 
         return formattedOutput;
     }
-    //Get Scheme name by scheme id
+
+    //Get Block/Floor Booking for AllSchemes
+    @Override
+    public List<Map<String, Object>> getUnitAllScheme() {
+        List<Map<String, Object>> formattedOutput = new ArrayList<>();
+        List<Object[]> queryResults = unitDataRepo.findAllSchemeUnit();
+
+        Map<String, Map<String, Object>> schemeMap = new HashMap<>();
+
+        for (Object[] row : queryResults) {
+            String schemeCode = (String) row[0];
+            String schemeName = (String) row[1];
+            String type = (String) row[2];
+            String unitType = (String) row[3];
+            int totalUnits = ((Number) row[4]).intValue();
+            String unit = (String) row[5];
+            String floor = (String) row[6];
+            String block = (String) row[7];
+            String status = (String) row[8];
+            int nId = ((Number) row[9]).intValue();
+            String unitCost = (String) row[10];
+
+            Map<String, Object> currentScheme = schemeMap.get(schemeCode);
+
+            if (currentScheme == null) {
+                currentScheme = new HashMap<>();
+                currentScheme.put("scheme_code", schemeCode);
+                currentScheme.put("scheme_name", schemeName);
+                currentScheme.put("Type", type);
+                currentScheme.put("UnitType", unitType);
+                currentScheme.put("total_units", totalUnits);
+                currentScheme.put("Unsold", 0);
+                currentScheme.put("Sold", 0);
+                currentScheme.put("units", new ArrayList<>());
+                schemeMap.put(schemeCode, currentScheme);
+                formattedOutput.add(currentScheme);
+            }
+
+            Map<String, Object> unitData = new HashMap<>();
+            unitData.put("unit", unit);
+            if (floor != null) {
+                unitData.put("floor", floor);
+            }
+            if (block != null) {
+                unitData.put("block", block);
+            }
+            unitData.put("status", status);
+            unitData.put("n_id", nId);
+            unitData.put("unit_cost", unitCost);
+            ((List<Map<String, Object>>) currentScheme.get("units")).add(unitData);
+
+            // Update Sold and Unsold counts
+            if ("no".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
+                currentScheme.put("Unsold", (int) currentScheme.get("Unsold") + 1);
+            }
+            currentScheme.put("Sold", totalUnits - ((int) currentScheme.get("Unsold") ));
+        }
+
+        return formattedOutput;
+    }
+
+       //Get Scheme name by scheme id
     @Override
     public String getSchemeName(Long scheme) {
         return schemeDataRepo.findSchemeName(scheme);

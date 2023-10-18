@@ -766,6 +766,25 @@ public class PropertyController {
         }
     }
 
+    //Get Block/Floor Booking for All Schemes
+    @PostMapping("/getBlockFloorUnitAllSchemes")
+    public ResponseEntity<ResponseDo> getUnitBlockForAllScheme(@RequestBody JSONObject json) {
+        try {
+            Long id = json.getAsNumber("id").longValue();
+            List<Map<String, Object>> allDetails = propertyService.getUnitAllScheme();
+
+            if (!allDetails.isEmpty()) {
+                return ResponseEntity.ok(responseDo.setSuccessResponse(allDetails));
+            } else {
+                return ResponseEntity.ok(responseDo.setSuccessResponse("No Data Found", null));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(responseDo.setFailureResponse("An error occurred while fetching Details."));
+        }
+    }
+
     //Get Scheme name by scheme id
     @PostMapping("/getSchemeName")
     public String getSchemeName(@RequestBody JSONObject json) {

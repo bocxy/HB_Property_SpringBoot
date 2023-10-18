@@ -121,6 +121,9 @@ public interface PropertyService {
     //Get Block/Floor Details for Booking
     List<Map<String, Object>> getPropertyData(Long scheme);
 
+    //Get Block/Floor Booking for All Schemes
+    List<Map<String, Object>> getUnitAllScheme();
+
     //Get Scheme name by scheme id
     String getSchemeName(Long scheme);
 

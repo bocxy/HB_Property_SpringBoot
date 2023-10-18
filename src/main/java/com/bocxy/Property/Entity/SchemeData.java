@@ -105,6 +105,9 @@ public class SchemeData {
     @Column(name="V_REMARKS")
     private String V_REMARKS;
 
+    @Column(name="V_START_FROM")
+    private String V_START_FROM;
+
     // --------------------- TYPE UPDATED VALUE -----------------------
 
     @Column(name="N_TOTAL_ALLOTTED_UNITS")

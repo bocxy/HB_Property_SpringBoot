@@ -45,22 +45,19 @@ public interface UnitDataRepo extends JpaRepository<UnitData, Long> {
             "WHERE u.N_ID = :unitId")
     List<Object[]> findUnitScheme(@RequestParam("unitId") Long unitId);
 
-    @Query("SELECT u.V_BLOCK_NO, u.V_ASSET_TYPE, " +
-            "u.V_FLOOR_NO, u.V_UNIT_NO, u.V_UNIT_ALLOTTED_STATUS, u.N_ID, u.V_UNIT_COST " +
-            "FROM UnitData u " +
-            "WHERE u.N_SCHEME_ID = :scheme GROUP BY\n" +
-            "    u.V_BLOCK_NO,\n" +
-            "    u.V_ASSET_TYPE,\n" +
-            "    u.V_FLOOR_NO,\n" +
-            "    u.V_UNIT_NO,\n" +
-            "    u.V_UNIT_ALLOTTED_STATUS,\n" +
-            "    u.N_ID,\n" +
+
+    @Query(value = "SELECT s.V_SCHEME_CODE, s.V_SCHEME_NAME, s.V_SCHEME_TYPE, u.V_ASSET_TYPE, s.N_TOTAL_UNITS,\n" +
+            "    u.V_UNIT_NO, u.V_BLOCK_NO, u.V_FLOOR_NO, u.V_UNIT_ALLOTTED_STATUS, u.N_ID,\n" +
             "    u.V_UNIT_COST\n" +
-            "ORDER BY\n" +
-            "    u.V_BLOCK_NO,\n" +
-            "    u.V_ASSET_TYPE,\n" +
-            "    u.V_FLOOR_NO,\n" +
-            "    u.V_UNIT_NO")
+            "FROM unit_data u JOIN scheme_data s ON u.n_scheme_id = s.N_ID\n" +
+            "WHERE u.N_SCHEME_ID = :scheme AND u.v_unit_allotted_status REGEXP '^(?i)(pending|no)$'", nativeQuery = true)
     List<Object[]> findPropertyData(@RequestParam("scheme") Long scheme);
+
+    @Query(value = "SELECT s.V_SCHEME_CODE, s.V_SCHEME_NAME, s.V_SCHEME_TYPE, u.V_ASSET_TYPE, s.N_TOTAL_UNITS,\n" +
+            "    u.V_UNIT_NO, u.V_BLOCK_NO, u.V_FLOOR_NO, u.V_UNIT_ALLOTTED_STATUS, u.N_ID,\n" +
+            "    u.V_UNIT_COST\n" +
+            "FROM unit_data u JOIN scheme_data s ON u.n_scheme_id = s.N_ID\n" +
+            "WHERE u.v_unit_allotted_status REGEXP '^(?i)(pending|no)$'", nativeQuery = true)
+    List<Object[]> findAllSchemeUnit();
 
 }
