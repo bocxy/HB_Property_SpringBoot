@@ -38,7 +38,7 @@ public interface UnitDataRepo extends JpaRepository<UnitData, Long> {
 
     @Query("SELECT u.V_UNIT_AC_NO, u.VAssetSubCategory, u.V_TYPE_NAME, s.V_CITY_RURAL, s.V_CIRCLE, s.V_SCHEME_NAME,\n" +
             "s.V_UNIT_TYPE, u.V_BLOCK_NO, u.V_FLOOR_NO, u.V_FLAT_NO, u.V_UNIT_NO,\n" +
-            "u.V_PLOT_AREA, u.V_UDS_AREA, u.V_PLINTH_AREA, u.V_UNIT_COST\n" +
+            "u.V_PLOT_AREA, u.V_UDS_AREA, u.V_PLINTH_AREA, u.V_UNIT_COST , s.V_RESERVATION_STATUS\n" +
             "FROM UnitData u \n" +
             "JOIN SchemeData s \n" +
             "ON u.N_SCHEME_ID = s.N_ID\n" +

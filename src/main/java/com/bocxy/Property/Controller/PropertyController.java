@@ -263,6 +263,42 @@ public class PropertyController {
         }
     }
 
+
+    //Get Single UnitData
+    @PostMapping("/getOneUnitData")
+    public ResponseDo getOneUnitData(@RequestBody JSONObject json,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response) {
+        Long nId = json.getAsNumber("nId").longValue();
+        try {
+            UnitData unitData = propertyService.getOneUnit(nId);
+            return responseDo.setSuccessResponse(unitData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return responseDo.setFailureResponse("Failed to list Unit Data");
+        }
+    }
+
+    //Save Single Unit
+
+    @PostMapping("/saveOneUnitData")
+    public ResponseDo saveOneunitdata(@RequestBody UnitData unitData) {
+        try {
+            UnitData savedUnitData = propertyService.saveOneUnitData(unitData);
+
+            if (savedUnitData!=null) {
+                return responseDo.setSuccessResponse(savedUnitData);
+            } else {
+                return responseDo.setFailureResponse("Failed to save Unit Data.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return responseDo.setFailureResponse("An error occurred while saving Unit Data.");
+        }
+    }
+
+
+
     //SaleDeed Document
 
     @PostMapping("/saveSalesDeed")

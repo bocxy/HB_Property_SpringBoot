@@ -204,9 +204,9 @@ public class PropertyServiceImpl implements PropertyService {
 
             // Check if the current date is before toDate
             if (currentDate.isBefore(toDate)) {
-                scheme.setV_RESERVATION_STATUS("Reservation");
+                scheme.setV_RESERVATION_STATUS("Yes");
             } else {
-                scheme.setV_RESERVATION_STATUS("Non Reservation");
+                scheme.setV_RESERVATION_STATUS("No");
             }
             schemeDataRepo.save(scheme);
         }
@@ -231,9 +231,9 @@ public class PropertyServiceImpl implements PropertyService {
 
             // Check if the current date is before toDate
             if (currentDate.isBefore(toDate)) {
-                scheme.setV_RESERVATION_STATUS("Reservation");
+                scheme.setV_RESERVATION_STATUS("Yes");
             } else {
-                scheme.setV_RESERVATION_STATUS("Non Reservation");
+                scheme.setV_RESERVATION_STATUS("No");
             }
 
             return schemeDataRepo.save(scheme);
@@ -254,9 +254,9 @@ public class PropertyServiceImpl implements PropertyService {
                     LocalDate toDate = LocalDate.parse(scheme.getV_TO_DATE(), formatter);
 
                     if (toDate.isAfter(currentDate)) {
-                        scheme.setV_RESERVATION_STATUS("Reservation");
+                        scheme.setV_RESERVATION_STATUS("Yes");
                     } else {
-                        scheme.setV_RESERVATION_STATUS("Non Reservation");
+                        scheme.setV_RESERVATION_STATUS("No");
                     }
 
                     schemeDataRepo.save(scheme);
@@ -308,6 +308,20 @@ public class PropertyServiceImpl implements PropertyService {
 
     public List<UnitData> getUnits(Long nSchemeId) {
         return unitDataRepo.findByNSchemeId(nSchemeId);
+    }
+
+    // View One Unit Data
+    @Override
+    public UnitData getOneUnit(Long nId) {
+        Optional<UnitData> optionalSavedUnit = unitDataRepo.findById(nId);
+        UnitData savedUnit = optionalSavedUnit.get();
+        return savedUnit;
+    }
+
+    //Save Single Unit
+    @Override
+    public UnitData saveOneUnitData(UnitData unitData) {
+        return unitDataRepo.save(unitData);
     }
 
     @Override
@@ -1592,7 +1606,7 @@ public class PropertyServiceImpl implements PropertyService {
         Optional<UnitData> unitData = unitDataRepo.findById(unitId);
         UnitData unit = unitData.get();
 
-        if(reservation.equalsIgnoreCase("Reservation")) {
+        if(reservation.equalsIgnoreCase("Yes")) {
 
             if (status.equalsIgnoreCase("Pending")) {
                 decrementCategoryField(scheme, category, subCategory);// Change the UnitData status to 'pending'
@@ -1861,8 +1875,16 @@ public class PropertyServiceImpl implements PropertyService {
             detail.put("UDS_Area", details.get(0)[12]);
             detail.put("Plinth_Area", details.get(0)[13]);
             detail.put("Unit_Cost", details.get(0)[14]);
-        }
+            detail.put("Reservation_Status", details.get(0)[15]);
 
+            if (details.get(0)[14] != null) {
+                String unitCostStr = (String) details.get(0)[14];
+                double unitCost = Double.parseDouble(unitCostStr);
+                double initialAmount = 0.10 * unitCost; // 10% of Unit_Cost
+                Long roundedInitialAmount = Math.round(initialAmount);
+                detail.put("Initial_Amount", roundedInitialAmount);
+            }
+        }
         return detail;
     }
 

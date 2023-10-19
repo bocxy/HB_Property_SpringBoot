@@ -70,6 +70,12 @@ public interface PropertyService {
 
     List<Map<String, Object>> findUnitDetailsBySchemeId(Long schemeId);
 
+    // Get One Unit Data
+    UnitData getOneUnit(Long nId);
+
+    // Save One Unit Data
+    UnitData saveOneUnitData(UnitData unitData);
+
    List <Map<String, Object>> getBlocksForWebsite(Long schemeId);
 
    ResponseEntity<Object> bookNow(Long unitId);
