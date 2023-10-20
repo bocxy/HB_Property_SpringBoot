@@ -25,6 +25,7 @@ public interface SchemeDataRepo extends JpaRepository<SchemeData, Long> {
     @Query(value = "SELECT v_scheme_name FROM property_db.scheme_data WHERE n_id = :scheme", nativeQuery = true)
     String findSchemeName(@RequestParam("scheme") Long scheme);
 
+
     @Query(value = "SELECT" +
             "    sd.N_ID,\n" +
             "    sd.V_FROM_DATE,\n" +
@@ -41,6 +42,7 @@ public interface SchemeDataRepo extends JpaRepository<SchemeData, Long> {
             "    sd.N_TOTAL_ALLOTTED_UNITS,\n" +
             "    sd.N_TOTAL_UNSOLD_UNITS,\n" +
             "    sd.V_SELLING_EXTENT,\n" +
+            "    sd.V_START_FROM,\n" +
             "    (\n" +
             "        SELECT fpc.f_photo\n" +
             "        FROM property_db.website_data wd\n" +

@@ -164,6 +164,12 @@ public class CustomerApplication {
     @Column(name = "SCHEME_N_ID")
     private Long schemeNId;
 
+    @Column(name = "CATEGORY_CODE")             // CC
+    private Long categoryCode;
+
+    @Column(name = "SUB_CATEGORY_CODE")         // SC
+    private Long subCategoryCode;
+
     @Transient
     private String nativeOfTamilnadu;
 

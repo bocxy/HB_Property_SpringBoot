@@ -40,7 +40,7 @@ public class SchemeData {
     private String V_UNIT_TYPE;
 
     @Column(name="N_TOTAL_UNITS")
-    private String N_TOTAL_UNITS;
+    private Long N_TOTAL_UNITS;
 
     @Column(name="V_SPLACE")
     private String V_SPLACE;

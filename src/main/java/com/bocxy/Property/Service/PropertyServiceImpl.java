@@ -258,14 +258,97 @@ public class PropertyServiceImpl implements PropertyService {
                     } else {
                         scheme.setV_RESERVATION_STATUS("No");
                     }
-
-                    schemeDataRepo.save(scheme);
-                    schemeList.add(scheme);
                 } catch (DateTimeParseException e) {
                     // Handle invalid date format in V_TO_DATE
                     // You can log the error or handle it as needed
                 }
             }
+
+            Long totalAllotment = scheme.getN_TOTAL_UNITS();
+            // Scheduled Caste
+            Long artist = Math.round(0.18 * 0.05 * totalAllotment);
+            scheme.setV_ARTISTS(artist);
+            scheme.setV_ARTISTS_UNSOLD_UNITS(artist);
+            Long politicalSufferers = Math.round(0.18 * 0.01 * totalAllotment);
+            scheme.setV_POLITICAL_SUFFERERS(politicalSufferers);
+            scheme.setV_POLITICAL_SUFFERERS_UNSOLD_UNITS(politicalSufferers);
+            Long physicallyChallenged = Math.round(0.18 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.18 * 0.03 * totalAllotment);
+            scheme.setV_PHYSICALLY_CHALLENGED(physicallyChallenged);
+            scheme.setV_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(physicallyChallenged);
+            scheme.setV_SCHEDULED_CASTE(Math.round(0.18 * totalAllotment) - artist - politicalSufferers - physicallyChallenged);
+            scheme.setV_SCHEDULED_CASTE_UNSOLD_UNITS(scheme.getV_SCHEDULED_CASTE());
+            // Scheduled Tribes
+            Long stPhysicallYChallenged =  Math.round(0.01 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.01 * 0.03 * totalAllotment);
+            scheme.setV_ST_PHYSICALLY_CHALLENGED(stPhysicallYChallenged);
+            scheme.setV_ST_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(stPhysicallYChallenged);
+            scheme.setV_SCHEDULED_TRIBES(Math.round(0.01 * totalAllotment) - stPhysicallYChallenged);
+            scheme.setV_SCHEDULED_TRIBES_UNSOLD_UNITS(scheme.getV_SCHEDULED_TRIBES());
+            // State Government
+            Long stateJudicialOfficers = Math.round(0.18 * 0.02 * totalAllotment);
+            scheme.setV_STATE_GOVT_JUDICIAL_OFFICERS(stateJudicialOfficers);
+            scheme.setV_STATE_GOVT_JUDICIAL_OFFICERS_UNSOLD_UNITS(stateJudicialOfficers);
+            Long statePhysicallYChallenged = Math.round(0.18 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.18 * 0.03 * totalAllotment);
+            scheme.setV_STATE_GOVT_PHYSICALLY_CHALLENGED(statePhysicallYChallenged);
+            scheme.setV_STATE_GOVT_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(statePhysicallYChallenged);
+            scheme.setV_STATE_GOVERNMENT(Math.round(0.18 * totalAllotment) - stateJudicialOfficers - statePhysicallYChallenged);
+            scheme.setV_STATE_GOVERNMENT_UNSOLD_UNITS(scheme.getV_STATE_GOVERNMENT());
+            // Central Government
+            Long centralPhysicallyChallenged = Math.round(0.08 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.08 * 0.03 * totalAllotment);
+            scheme.setV_CENTRAL_GOVT_PHYSICALLY_CHALLENGED(centralPhysicallyChallenged);
+            scheme.setV_CENTRAL_GOVT_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(centralPhysicallyChallenged);
+            scheme.setV_CENTRAL_TNEB_LOCAL_BODIES(Math.round(0.08 * totalAllotment) - centralPhysicallyChallenged);
+            scheme.setV_CENTRAL_TNEB_LOCAL_BODIES_UNSOLD_UNITS(scheme.getV_CENTRAL_TNEB_LOCAL_BODIES());
+            // Defence
+            Long awardees = Math.round(0.07 * 0.01 * totalAllotment);
+            scheme.setV_AWARDEES(awardees);
+            scheme.setV_AWARDEES_UNSOLD_UNITS(awardees);
+            Long defencePhysicallyChallenged = Math.round(0.07 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.07 * 0.03 * totalAllotment);
+            scheme.setV_DEFENCE_PHYSICALLY_CHALLENGED(defencePhysicallyChallenged);
+            scheme.setV_DEFENCE_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(defencePhysicallyChallenged);
+            scheme.setV_DEFENCE(Math.round(0.07 * totalAllotment) - awardees - defencePhysicallyChallenged);
+            scheme.setV_DEFENCE_UNSOLD_UNITS(scheme.getV_DEFENCE());
+            // Dhobbies And Barbers
+            Long artists = Math.round(0.04 * 0.05 * totalAllotment);
+            scheme.setV_DHOBBIES_ARTISTS(artists);
+            scheme.setV_DHOBBIES_ARTISTS_UNSOLD_UNITS(artists);
+            Long dhobbiesPhysicallyChallenged = Math.round(0.04 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.04 * 0.03 * totalAllotment);
+            scheme.setV_DHOBBIES_PHYSICALLY_CHALLENGED(dhobbiesPhysicallyChallenged);
+            scheme.setV_DHOBBIES_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(dhobbiesPhysicallyChallenged);
+            scheme.setV_DHOBBIES_BARBERS(Math.round(0.04 * totalAllotment) - artists - dhobbiesPhysicallyChallenged);
+            scheme.setV_DHOBBIES_BARBERS_UNSOLD_UNITS(scheme.getV_DHOBBIES_BARBERS());
+            // Working Journalist
+            Long journalistPhysicallyChallenged = Math.round(0.03 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.03 * 0.03 * totalAllotment);
+            scheme.setV_JOURNALIST_PHYSICALLY_CHALLENGED(journalistPhysicallyChallenged);
+            scheme.setV_JOURNALIST_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(journalistPhysicallyChallenged);
+            scheme.setV_WORKING_JOURNALIST(Math.round(0.03 * totalAllotment) - journalistPhysicallyChallenged);
+            scheme.setV_WORKING_JOURNALIST_UNSOLD_UNITS(scheme.getV_WORKING_JOURNALIST());
+            // Language Crusaders
+            Long languagePhysicallyChallenged = Math.round(0.01 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.18 * 0.03 * totalAllotment);
+            scheme.setV_LANGUAGE_PHYSICALLY_CHALLENGED(languagePhysicallyChallenged);
+            scheme.setV_LANGUAGE_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(languagePhysicallyChallenged);
+            scheme.setV_LANGUAGE_CRUSADERS(Math.round(0.01 * totalAllotment) - languagePhysicallyChallenged);
+            scheme.setV_LANGUAGE_CRUSADERS_UNSOLD_UNITS(scheme.getV_LANGUAGE_CRUSADERS());
+            // TNHB Employees
+            Long tnhbPhysicallyChallenged = Math.round(0.02 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.02 * 0.03 * totalAllotment);
+            scheme.setV_TNHB_PHYSICALLY_CHALLENGED(tnhbPhysicallyChallenged);
+            scheme.setV_TNHB_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(tnhbPhysicallyChallenged);
+            scheme.setV_TNHB_EMPLOYEES(Math.round(0.02 * totalAllotment) - tnhbPhysicallyChallenged);
+            scheme.setV_TNHB_EMPLOYEES_UNSOLD_UNITS(scheme.getV_TNHB_EMPLOYEES());
+            // General Public
+            Long publicArtist = Math.round(0.38 * 0.05 * totalAllotment);
+            scheme.setV_GENERAL_PUBLIC_ARTISTS(publicArtist);
+            scheme.setV_GENERAL_PUBLIC_ARTISTS_UNSOLD_UNITS(publicArtist);
+            Long publicPoliticalSufferers = Math.round(0.38 * 0.01 * totalAllotment);
+            scheme.setV_GENERAL_PUBLIC_POLITICAL_SUFFERERS(publicPoliticalSufferers);
+            scheme.setV_GENERAL_PUBLIC_POLITICAL_SUFFERERS_UNSOLD_UNITS(publicPoliticalSufferers);
+            Long publicPhysicallyChallenged = Math.round(0.38 * 0.03 * totalAllotment) == 0 ? 1 : Math.round(0.38 * 0.03 * totalAllotment);
+            scheme.setV_GENERAL_PUBLIC_PHYSICALLY_CHALLENGED(publicPhysicallyChallenged);
+            scheme.setV_GENERAL_PUBLIC_PHYSICALLY_CHALLENGED_UNSOLD_UNITS(publicPhysicallyChallenged);
+            scheme.setV_GENERAL_PUBLIC(Math.round(0.38 * totalAllotment) - publicArtist - publicPoliticalSufferers - publicPhysicallyChallenged);
+            scheme.setV_GENERAL_PUBLIC_UNSOLD_UNITS(scheme.getV_GENERAL_PUBLIC());
+
+            schemeDataRepo.save(scheme);
+            schemeList.add(scheme);
         }
         return schemeList;
     }
@@ -1236,7 +1319,8 @@ public class PropertyServiceImpl implements PropertyService {
             propertyMap.put("Allotted_Units",  row[12]);
             propertyMap.put("Unsold_Units",  row[13]);
             propertyMap.put("Selling_Extent",  row[14]);
-            propertyMap.put("Photo",  row[15]);
+            propertyMap.put("Starting_From",  row[15]);
+            propertyMap.put("Photo",  row[16]);
 
             result.add(propertyMap);
         }
