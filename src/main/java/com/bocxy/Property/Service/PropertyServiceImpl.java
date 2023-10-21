@@ -751,10 +751,10 @@ public class PropertyServiceImpl implements PropertyService {
         return savedWebsiteDataList;
     }
 
-    @Override
-    public List<WebsiteData> getWebsiteData() {
-        return websiteDataRepo.findAll();
-    }
+//    @Override
+//    public List<WebsiteData> getWebsiteData() {
+//        return websiteDataRepo.findAll();
+//    }
 
     public List<WebsiteModel> getAllWebsiteData() {
         List<Map<String, Object>> queryResults = websiteDataRepo.findAllUnitData();
@@ -827,6 +827,14 @@ public class PropertyServiceImpl implements PropertyService {
     public void deleteWebsiteData(Long id) {
         websiteDataRepo.deleteById(id);
     }
+
+    @Override
+    public List<WebsiteData> getWebsiteData(Long nschemeId) {
+        return websiteDataRepo.findBynSchemeId(nschemeId);
+    }
+
+
+
 
     @Override
     public List<Map<String, Object>> findUnitDetailsBySchemeId(Long schemeId) {

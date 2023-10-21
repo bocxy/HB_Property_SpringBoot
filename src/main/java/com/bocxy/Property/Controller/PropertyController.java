@@ -461,9 +461,10 @@ public class PropertyController {
 
     //Get data for website
     @PostMapping("/getParticularData")
-    public ResponseEntity<ResponseDo> getWebsiteData() {
+    public ResponseEntity<ResponseDo> getWebsiteData(@RequestBody JSONObject json) {
         try {
-            List<WebsiteData> websiteDataList = propertyService.getWebsiteData();
+            Long nschemeId = json.getAsNumber("nSchemeId").longValue();
+            List<WebsiteData> websiteDataList = propertyService.getWebsiteData(nschemeId);
 
             if (!websiteDataList.isEmpty()) {
                 ResponseDo response = new ResponseDo();
@@ -482,6 +483,20 @@ public class PropertyController {
             response.setSuccessResponse(false);
             response.setFailureResponse("An error occurred while retrieving WebsiteData.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+
+    //Delete Website Data
+    @DeleteMapping("/deleteWebsite")
+    public ResponseDo deleteWebsiteData(@RequestBody Map<String, Long> requestBody) {
+        try {
+            Long id = requestBody.get("id");
+            propertyService.deleteWebsiteData(id);
+            return responseDo.setSuccessResponse("Successfully deleted Website Data: " + id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return responseDo.setFailureResponse("Failed to delete Website Data");
         }
     }
 

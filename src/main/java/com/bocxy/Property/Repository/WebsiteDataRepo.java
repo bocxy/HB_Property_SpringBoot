@@ -82,7 +82,7 @@ public interface WebsiteDataRepo extends JpaRepository<WebsiteData, Long> {
             "FROM unit_data ud",   nativeQuery = true)
     Map<String, Object> findUnitDataWithStatus(Long unitId);
 
-
+    List<WebsiteData> findBynSchemeId(Long nschemeId);
 
 
 }

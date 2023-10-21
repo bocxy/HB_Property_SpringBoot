@@ -58,7 +58,7 @@ public interface PropertyService {
     //WEBSITE MODULE
     List<WebsiteData> saveWebsiteData(List<WebsiteData> websiteDataList);
 
-    List<WebsiteData>getWebsiteData();
+//    List<WebsiteData>getWebsiteData();
 
     List<WebsiteModel>getAllWebsiteData();
 
@@ -67,6 +67,9 @@ public interface PropertyService {
     Map<String, Object> getSchemeDataBySchemeId(Long schemeId);
 
     void deleteWebsiteData(Long id);
+
+    List<WebsiteData>getWebsiteData(Long nschemeId);
+
 
     List<Map<String, Object>> findUnitDetailsBySchemeId(Long schemeId);
 
