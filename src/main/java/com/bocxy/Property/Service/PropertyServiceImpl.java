@@ -852,9 +852,9 @@ public class PropertyServiceImpl implements PropertyService {
 
         String unitStatus = (String) unitDataWithStatus.get("V_UNIT_ALLOTTED_STATUS");
 
-        if ("no".equalsIgnoreCase(unitStatus)) {
+        if ("No".equalsIgnoreCase(unitStatus)) {
             return "Your Apartment has been booked";
-        } else if ("yes".equalsIgnoreCase(unitStatus)) {
+        } else if ("Yes".equalsIgnoreCase(unitStatus)) {
             return "You can't book this Apartment";
         } else {
             return "Invalid status";
@@ -870,9 +870,9 @@ public class PropertyServiceImpl implements PropertyService {
 
         String unitStatus = (String) unitDataWithStatus.get().get("V_UNIT_ALLOTTED_STATUS");
 
-        if ("no".equalsIgnoreCase(unitStatus)) {
+        if ("No".equalsIgnoreCase(unitStatus)) {
             return ResponseEntity.ok("Your Apartment has been booked");
-        } else if ("yes".equalsIgnoreCase(unitStatus)) {
+        } else if ("Yes".equalsIgnoreCase(unitStatus)) {
             return ResponseEntity.ok("You can't book this Apartment");
         } else {
             return ResponseEntity.ok("Invalid status"); // Handle other cases as needed
@@ -1605,7 +1605,7 @@ public class PropertyServiceImpl implements PropertyService {
             ((List<Map<String, Object>>) currentScheme.get("units")).add(unitData);
 
             // Update Sold and Unsold counts
-            if ("no".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
+            if ("No".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
                 currentScheme.put("Unsold", (int) currentScheme.get("Unsold") + 1);
             }
             currentScheme.put("Sold", totalUnits - ((int) currentScheme.get("Unsold") ));
@@ -1665,7 +1665,7 @@ public class PropertyServiceImpl implements PropertyService {
             ((List<Map<String, Object>>) currentScheme.get("units")).add(unitData);
 
             // Update Sold and Unsold counts
-            if ("no".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
+            if ("No".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) {
                 currentScheme.put("Unsold", (int) currentScheme.get("Unsold") + 1);
             }
             currentScheme.put("Sold", totalUnits - ((int) currentScheme.get("Unsold") ));
@@ -1696,21 +1696,21 @@ public class PropertyServiceImpl implements PropertyService {
                 decrementCategoryField(scheme, category, subCategory);// Change the UnitData status to 'pending'
                 unit.setV_UNIT_ALLOTTED_STATUS("Pending");
             } else if (status.equalsIgnoreCase("accept")) {
-                // Change the UnitData status to 'yes'
-                unit.setV_UNIT_ALLOTTED_STATUS("yes");
+                // Change the UnitData status to 'Yes'
+                unit.setV_UNIT_ALLOTTED_STATUS("Yes");
             } else if (status.equalsIgnoreCase("reject")) {
                 // Increment the corresponding category field in SchemeData
                 incrementCategoryField(scheme, category, subCategory);
-                // Change the UnitData status to 'no'
-                unit.setV_UNIT_ALLOTTED_STATUS("no");
+                // Change the UnitData status to 'No'
+                unit.setV_UNIT_ALLOTTED_STATUS("No");
             }
-        }else { // Handle the case when reservation is 'no'
+        }else { // Handle the case when reservation is 'No'
             if (status.equalsIgnoreCase("Pending")) {
                 unit.setV_UNIT_ALLOTTED_STATUS("Pending");
             } else if (status.equalsIgnoreCase("accept")) {
-                unit.setV_UNIT_ALLOTTED_STATUS("yes");
+                unit.setV_UNIT_ALLOTTED_STATUS("Yes");
             } else if (status.equalsIgnoreCase("reject")) {
-                unit.setV_UNIT_ALLOTTED_STATUS("no");
+                unit.setV_UNIT_ALLOTTED_STATUS("No");
             }
         }
 
@@ -1945,7 +1945,7 @@ public class PropertyServiceImpl implements PropertyService {
         Map<String, Object> detail = new HashMap<>();
         if (!details.isEmpty() && details.get(0).length >= 15) {
             detail.put("Unit_Account_No", details.get(0)[0]);
-            detail.put("Unit_Type", details.get(0)[1]);
+            detail.put("Scheme_Type", details.get(0)[1]);
             detail.put("Mode_Of_Allotment", details.get(0)[2]);
             detail.put("City_Rural", details.get(0)[3]);
             detail.put("Circle", details.get(0)[4]);

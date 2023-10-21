@@ -484,7 +484,9 @@ public class PropertyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    //get all Website Data
+
+
+    //get all Website Data for USER WEBSITE scheme List screen
     @PostMapping("/getAllWebsiteData")
     public ResponseDo getAllWebsiteData(@RequestBody JSONObject json,
                                         HttpServletRequest request,
@@ -505,8 +507,8 @@ public class PropertyController {
         }
     }
 
-// get single websiteData
 
+    // get single websiteData
     @PostMapping("/getwebsiteData")
     public ResponseEntity<Map<String, Object>> getSchemeDataBySchemeId(@RequestBody Map<String, Long> request) {
         Long schemeId = request.get("schemeId");
