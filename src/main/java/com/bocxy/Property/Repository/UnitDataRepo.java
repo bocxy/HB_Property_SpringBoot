@@ -54,9 +54,10 @@ public interface UnitDataRepo extends JpaRepository<UnitData, Long> {
 
     @Query(value = "SELECT s.V_SCHEME_CODE, s.V_SCHEME_NAME, s.V_SCHEME_TYPE, s.V_UNIT_TYPE, s.N_TOTAL_UNITS,\n" +
             "    u.V_UNIT_NO, u.V_BLOCK_NO, u.V_FLOOR_NO, u.V_UNIT_ALLOTTED_STATUS, u.N_ID,\n" +
-            "    u.V_UNIT_COST\n" +
+            "    u.V_UNIT_COST, s.V_CIRCLE, s.V_DIVISION, s.V_DISTRICT\n" +
             "FROM unit_data u JOIN scheme_data s ON u.n_scheme_id = s.N_ID\n" +
             "WHERE u.v_unit_allotted_status REGEXP '^(?i)(pending|no)$'", nativeQuery = true)
     List<Object[]> findAllSchemeUnit();
+
 
 }

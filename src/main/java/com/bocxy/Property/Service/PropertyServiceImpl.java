@@ -1634,6 +1634,9 @@ public class PropertyServiceImpl implements PropertyService {
             String status = (String) row[8];
             int nId = ((Number) row[9]).intValue();
             String unitCost = (String) row[10];
+            String circle = (String) row[11];
+            String division = (String) row[12];
+            String district = (String) row[13];
 
             Map<String, Object> currentScheme = schemeMap.get(schemeCode);
 
@@ -1646,6 +1649,10 @@ public class PropertyServiceImpl implements PropertyService {
                 currentScheme.put("total_units", totalUnits);
                 currentScheme.put("Unsold", 0);
                 currentScheme.put("Sold", 0);
+                currentScheme.put("circle", circle);
+                currentScheme.put("division", division);
+                currentScheme.put("district", district);
+
                 currentScheme.put("units", new ArrayList<>());
                 schemeMap.put(schemeCode, currentScheme);
                 formattedOutput.add(currentScheme);
@@ -1673,7 +1680,6 @@ public class PropertyServiceImpl implements PropertyService {
 
         return formattedOutput;
     }
-
        //Get Scheme name by scheme id
     @Override
     public String getSchemeName(Long scheme) {
