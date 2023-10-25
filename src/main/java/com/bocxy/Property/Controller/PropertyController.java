@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200","http://localhost:4300"}, allowedHeaders = "*")
+@CrossOrigin(origins = {"http://localhost:4200","http://localhost:4300","http://localhost:62872"}, allowedHeaders = "*")
 public class PropertyController {
 
     private final PropertyService propertyService;
@@ -44,7 +44,7 @@ public class PropertyController {
         this.allotteeRepo = allotteeRepo;
         this.schemeDataRepo = schemeDataRepo;
         this.UnitDataRepo = unitDataRepo;
-        this.responseDo = responseDo; // Autowire the ResponseDo object
+        this.responseDo = responseDo;
         this.websiteDataRepo = websiteDataRepo;
     }
 
@@ -72,7 +72,7 @@ public class PropertyController {
         }
     }
 
-    //Create/Edit Single Scheme
+    //Create Single Scheme
     @PostMapping("/saveSchemeData")
     public ResponseDo saveSchemeData(@RequestBody List<SchemeData> schemeData) {
         try {
@@ -89,7 +89,22 @@ public class PropertyController {
         }
     }
 
+   //Edit Single Scheme
+   @PostMapping("/editSchemeData")
+   public ResponseDo editSchemeData(@RequestBody SchemeData updatedSchemeData) {
+       try {
+           SchemeData editedSchemeData = propertyService.editSchemeData(updatedSchemeData);
 
+           if (editedSchemeData != null) {
+               return responseDo.setSuccessResponse(editedSchemeData);
+           } else {
+               return responseDo.setFailureResponse("SchemeData with the given ID not found.");
+           }
+       } catch (Exception e) {
+           e.printStackTrace();
+           return responseDo.setFailureResponse("An error occurred while editing SchemeData.");
+       }
+   }
 
     //Get Single Scheme
     @PostMapping("/getSchemeData")
@@ -848,8 +863,8 @@ public class PropertyController {
 
     }
 
-    //Category wise count Increment/Decrement
 
+    //Category wise count Increment/Decrement
     @PostMapping("/getCategoryWiseUnsold")
     public ResponseEntity<ResponseDo> getCategoryWiseUnsold(@RequestBody JSONObject json) {
         Long schemeId = json.getAsNumber("schemeId").longValue();

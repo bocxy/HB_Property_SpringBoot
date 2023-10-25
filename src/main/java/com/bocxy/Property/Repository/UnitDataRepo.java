@@ -1,7 +1,9 @@
 package com.bocxy.Property.Repository;
 import com.bocxy.Property.Entity.UnitData;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -59,5 +61,11 @@ public interface UnitDataRepo extends JpaRepository<UnitData, Long> {
             "WHERE u.v_unit_allotted_status REGEXP '^(?i)(pending|no)$'", nativeQuery = true)
     List<Object[]> findAllSchemeUnit();
 
+    @Modifying
+    @Query(value = "UPDATE scheme_data " +
 
+            "SET N_TOTAL_ALLOTTED_UNITS = (SELECT COUNT(*) FROM unit_data WHERE N_SCHEME_ID = :nId AND V_UNIT_ALLOTTED_STATUS = 'Yes'), " +
+            "N_TOTAL_UNSOLD_UNITS = (N_TOTAL_UNITS - N_TOTAL_ALLOTTED_UNITS) " +
+            "WHERE N_ID = :nId", nativeQuery = true)
+    void updateSchemeData(@Param("nId") Long nId);
 }

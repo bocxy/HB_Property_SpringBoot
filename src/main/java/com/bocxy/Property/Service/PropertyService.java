@@ -141,4 +141,6 @@ public interface PropertyService {
 
     // Unit Scheme Details for Unit ID CUSTOMER APPLICATION AUTOPOPULATE
     Map<String, Object> getUnitSchemeDetails(Long unitId);
+
+    SchemeData editSchemeData(SchemeData updatedSchemeData);
 }

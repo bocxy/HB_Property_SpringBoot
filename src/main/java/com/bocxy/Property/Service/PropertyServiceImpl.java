@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
@@ -388,6 +389,35 @@ public class PropertyServiceImpl implements PropertyService {
         return unitData;
     }
 
+    @Override
+    public SchemeData editSchemeData( SchemeData updatedSchemeData) {
+        Long id= updatedSchemeData.getN_ID();
+        Optional<SchemeData> existingSchemeDataOptional = schemeDataRepo.findById(id);
+
+        if (existingSchemeDataOptional.isPresent()) {
+            SchemeData existingSchemeData = existingSchemeDataOptional.get();
+            Field[] fields = SchemeData.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    Object updatedValue = field.get(updatedSchemeData);
+                    if (updatedValue != null) {
+                        field.set(existingSchemeData, updatedValue);
+                    }
+                } catch (IllegalAccessException e) {
+
+                    e.printStackTrace();
+                }
+            }
+
+            schemeDataRepo.save(existingSchemeData);
+
+            return existingSchemeData;
+        } else {
+
+            return null;
+        }
+    }
 
     public List<UnitData> getUnits(Long nSchemeId) {
         return unitDataRepo.findByNSchemeId(nSchemeId);
@@ -404,7 +434,10 @@ public class PropertyServiceImpl implements PropertyService {
     //Save Single Unit
     @Override
     public UnitData saveOneUnitData(UnitData unitData) {
-        return unitDataRepo.save(unitData);
+        UnitData savedunitData = unitDataRepo.save(unitData);
+        unitDataRepo.updateSchemeData(unitData.getN_SCHEME_ID());
+        return savedunitData;
+
     }
 
     @Override
@@ -900,7 +933,7 @@ public class PropertyServiceImpl implements PropertyService {
             helper.addTo(vPocEmail);
             helper.addTo(vEmail);
             helper.setSubject("TNHB- Property Request");
-            String emailContent = "Hi Sir/Madam,<br>" +
+            String emailContent =
                     "Hello " + enquiry.getVName() + ",<br>" +
                     "Your below enquiry has been successfully submitted.<br>" +
                     "Name: " + enquiry.getVName() + "<br>" +
@@ -1731,7 +1764,7 @@ public class PropertyServiceImpl implements PropertyService {
         // Update both SchemeData and UnitData
         schemeDataRepo.save(scheme);
         unitDataRepo.save(unit);
-
+        unitDataRepo.updateSchemeData(schemeId);
         return ResponseEntity.ok("Data updated successfully.");
     }
 
