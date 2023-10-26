@@ -434,6 +434,112 @@ public class PropertyServiceImpl implements PropertyService {
     //Save Single Unit
     @Override
     public UnitData saveOneUnitData(UnitData unitData) {
+
+        if (unitData.getApplication() != null) {
+            String base64FileData = unitData.getApplication();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setApplication_filename(generatedFileName);
+                unitData.setApplication_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getAllotmentOrder() != null) {
+            String base64FileData = unitData.getAllotmentOrder();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setAllotmentOrder_filename(generatedFileName);
+                unitData.setAllotmentOrder_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getLcsAgreement() != null) {
+            String base64FileData = unitData.getLcsAgreement();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setLcsAgreement_filename(generatedFileName);
+                unitData.setLcsAgreement_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getA_bLoan() != null) {
+            String base64FileData = unitData.getA_bLoan();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setA_bLoan_filename(generatedFileName);
+                unitData.setA_bLoan_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getFieldMeasurementBook() != null) {
+            String base64FileData = unitData.getFieldMeasurementBook();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setFieldMeasurementBook_filename(generatedFileName);
+                unitData.setFieldMeasurementBook_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getHandingoverReport() != null) {
+            String base64FileData = unitData.getHandingoverReport();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setHandingoverReport_filename(generatedFileName);
+                unitData.setHandingoverReport_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
+        if (unitData.getDraftSaleDeed() != null) {
+            String base64FileData = unitData.getDraftSaleDeed();
+            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+            File dest = new File(uploadDir, generatedFileName);
+
+            try {
+                Files.write(dest.toPath(), decodedFileData);
+                unitData.setDraftSaleDeed_filename(generatedFileName);
+                unitData.setDraftSaleDeed_filepath(dest.getAbsolutePath());
+            } catch (IOException e) {
+
+            }
+        }
+
         UnitData savedunitData = unitDataRepo.save(unitData);
         unitDataRepo.updateSchemeData(unitData.getN_SCHEME_ID());
         return savedunitData;
@@ -1403,6 +1509,7 @@ public class PropertyServiceImpl implements PropertyService {
 
             }
         }
+
         if (customerApplication.getAadhaarProof() != null) {
             String base64FileData = customerApplication.getAadhaarProof();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
