@@ -143,4 +143,11 @@ public interface PropertyService {
     Map<String, Object> getUnitSchemeDetails(Long unitId);
 
     SchemeData editSchemeData(SchemeData updatedSchemeData);
+
+
+    CAllottee CAllotteeSave(CAllottee cAllottee);
+
+    List<CAllottee> getAllCAllottee();
+
+    CAllottee getCAllottee(Long id);
 }

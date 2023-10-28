@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200","http://localhost:4300","http://localhost:62872"}, allowedHeaders = "*")
+@CrossOrigin(origins = {"http://localhost:4200","http://localhost:4300","http://localhost:62872","http://propertyadmin.tnhb-noc.com","http://website.tnhb-noc.com"}, allowedHeaders = "*")
 public class PropertyController {
 
     private final PropertyService propertyService;
@@ -908,6 +908,61 @@ public class PropertyController {
             return responseDo.setFailureResponse("An error occurred while getting the details.");
         }
     }
+
+   // Accepted Allotte Save
+    @PostMapping("/saveCAllottee")
+    public ResponseDo saveCAllottee (@RequestBody CAllottee cAllottee) {
+        try {
+            CAllottee savedCAllottee = propertyService.CAllotteeSave(cAllottee);
+
+            if (savedCAllottee != null) {
+                return responseDo.setSuccessResponse(savedCAllottee);
+            } else {
+                return responseDo.setFailureResponse("Failed to save Circle Office.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return responseDo.setFailureResponse("An error occurred while saving Circle Office.");
+        }
+    }
+
+    // Accepted Allotte Get ALL
+    @PostMapping("/getAllCAllottee")
+    public ResponseDo getAllCAllottee() {
+        try {
+            List<CAllottee> allCAllottee = propertyService.getAllCAllottee();
+
+            if (allCAllottee != null) {
+                return responseDo.setSuccessResponse(allCAllottee);
+            } else {
+                return responseDo.setFailureResponse("No Data Found");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return responseDo.setFailureResponse("An error occurred"); // Return a failure response in case of exception
+        }
+    }
+
+    // Accepted Allotte Get by ID
+    @PostMapping("/getByIdCAllottee")
+    public ResponseEntity<ResponseDo> getCAllotteeById(@RequestBody JSONObject json) {
+        Long id = json.getAsNumber("id").longValue();
+        try {
+            CAllottee cAllottee = propertyService.getCAllottee(id);
+
+            if (cAllottee != null) {
+                return ResponseEntity.ok(responseDo.setSuccessResponse(cAllottee));
+            } else {
+                return ResponseEntity.ok(responseDo.setFailureResponse("CustomerApplication not found for the provided ID."));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(responseDo.setFailureResponse("An error occurred while fetching CustomerApplication."));
+        }
+    }
+
 }
 
 

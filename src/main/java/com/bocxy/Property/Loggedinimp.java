@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class Loggedinimp {
 	
-	    String myUrl ="jdbc:mysql://localhost:3306/property_db";
+	    String myUrl ="jdbc:mysql://tnhb-property.cvk3pspk8bzn.ap-south-1.rds.amazonaws.com/property_db";
 	    String root="root";
 	    String pswd="yazhini1998";
 	

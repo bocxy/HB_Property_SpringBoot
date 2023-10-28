@@ -88,7 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList("http://tnhb-noc-customer.s3-website.ap-south-1.amazonaws.com", "http://tnhb-noc-employee.s3-website.ap-south-1.amazonaws.com", "http://tnhb-noc-md.s3-website.ap-south-1.amazonaws.com","http://13.233.14.73","http://15.206.129.163","https://15.206.129.163","http://localhost:4200","http://localhost:4300","http://localhost:62872","https://localhost:4200",
-                "http://aocxy.com","https://aocxy.com","https://test.sbiepay.sbi", "https://apply.tnhb-noc.com","https://employee.tnhb-noc.com","https://md.tnhb-noc.com"));
+                "http://aocxy.com","https://aocxy.com","https://test.sbiepay.sbi", "http://propertyadmin.tnhb-noc.com","http://website.tnhb-noc.com"));
         config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
         config.setAllowCredentials(true);

@@ -17,6 +17,13 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -50,12 +57,14 @@ public class PropertyServiceImpl implements PropertyService {
     private Financial financialDetails;
     private CustomerApplicationRepo customerApplicationRepo;
     private SequentialNumberRepository sequenceNumberRepository;
+    private CAllotteeRepos cAllotteeRepos;
+
 
     @Autowired
     public PropertyServiceImpl(AllotteeRepo allotteeRepo, SchemeDataRepo schemeDataRepo, UnitDataRepo unitDataRepo,
                                SalesDeedDataRepo salesdeeddataRepo, WebsiteDataRepo websiteDataRepo, EnquiryRepo enquiryRepo,
                                Financial_Calc_Repo financial_calc_repo, FinancialRepo financialRepo, CollectionRepo collectionRepo,
-                               CustomerApplicationRepo customerApplicationRepo,SequentialNumberRepository sequenceNumberRepository) {
+                               CustomerApplicationRepo customerApplicationRepo,SequentialNumberRepository sequenceNumberRepository,CAllotteeRepos cAllotteeRepos) {
         this.allotteeRepo = allotteeRepo;
         this.schemeDataRepo = schemeDataRepo;
         this.unitDataRepo = unitDataRepo;
@@ -67,6 +76,7 @@ public class PropertyServiceImpl implements PropertyService {
         this.collectionRepo = collectionRepo;
         this.customerApplicationRepo = customerApplicationRepo;
         this.sequenceNumberRepository=sequenceNumberRepository;
+        this.cAllotteeRepos=cAllotteeRepos;
     }
 
     @Autowired
@@ -348,6 +358,8 @@ public class PropertyServiceImpl implements PropertyService {
             scheme.setV_GENERAL_PUBLIC(Math.round(0.38 * totalAllotment) - publicArtist - publicPoliticalSufferers - publicPhysicallyChallenged);
             scheme.setV_GENERAL_PUBLIC_UNSOLD_UNITS(scheme.getV_GENERAL_PUBLIC());
 
+            scheme.setN_TOTAL_ALLOTTED_UNITS(0L);
+            scheme.setN_TOTAL_UNSOLD_UNITS(scheme.getN_TOTAL_UNITS());
             schemeDataRepo.save(scheme);
             schemeList.add(scheme);
         }
@@ -534,7 +546,7 @@ public class PropertyServiceImpl implements PropertyService {
             try {
                 Files.write(dest.toPath(), decodedFileData);
                 unitData.setDraftSaleDeed_filename(generatedFileName);
-                unitData.setDraftSaleDeed_filepath(dest.getAbsolutePath());
+                unitData.setDraftSaleDeed_filename(dest.getAbsolutePath());
             } catch (IOException e) {
 
             }
@@ -768,7 +780,7 @@ public class PropertyServiceImpl implements PropertyService {
 
 
 
-    //WEBSITE MODULE
+    //WEBSITE MODULE - AWS
     @Transactional
     @Override
     public List<WebsiteData> saveWebsiteData(List<WebsiteData> websiteDataList) {
@@ -781,22 +793,24 @@ public class PropertyServiceImpl implements PropertyService {
                 for (String base64FileData : photoList) {
                     byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
                     String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+                    String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+                    String filepath = bucketUrl + generatedFileName;
+                    byte[] fileBytes = decodedFileData;
+                    AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-                    File destFolder = new File(uploadDir);
-                    if (!destFolder.exists()) {
-                        destFolder.mkdirs();
-                    }
+                    S3Client s3Client = S3Client.builder()
+                            .region(Region.AP_SOUTH_1)
+                            .credentialsProvider(() -> credentials)
+                            .build();
 
-                    File dest = new File(destFolder, generatedFileName);
+                    PutObjectRequest request = PutObjectRequest.builder()
+                            .bucket("tnhb-property-docs")
+                            .key(generatedFileName)
+                            .build();
 
-                    try {
-                        Files.write(dest.toPath(), decodedFileData);
-                        savedPhotos.add(dest.getAbsolutePath());
-                    } catch (IOException e) {
-                        // Handle the exception
-                    }
+                    PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
 
-
+                    savedPhotos.add(filepath);
                 }
                 websiteData.setFPhoto(savedPhotos);
 
@@ -806,82 +820,102 @@ public class PropertyServiceImpl implements PropertyService {
                 String base64FileData = websiteData.getFFloorPlanPicture();
                 byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
                 String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+                String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+                String filepath = bucketUrl + generatedFileName;
+                byte[] fileBytes = decodedFileData;
+                AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-                File destFolder = new File(uploadDir);
-                if (!destFolder.exists()) {
-                    destFolder.mkdirs();
-                }
+                S3Client s3Client = S3Client.builder()
+                        .region(Region.AP_SOUTH_1)
+                        .credentialsProvider(() -> credentials)
+                        .build();
 
-                File dest = new File(destFolder, generatedFileName);
+                PutObjectRequest request = PutObjectRequest.builder()
+                        .bucket("tnhb-property-docs")
+                        .key(generatedFileName)
+                        .build();
 
-                try {
-                    Files.write(dest.toPath(), decodedFileData);
-                    websiteData.setFFloorPlanPicture(dest.getAbsolutePath());
-                } catch (IOException e) {
+                PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
 
-                }
+                websiteData.setFFloorPlanPicture(filepath);
+
             }
 
             if (websiteData.getFFloorPlanPdf() != null) {
                 String base64PdfData = websiteData.getFFloorPlanPdf();
                 byte[] decodedPdfData = Base64.getDecoder().decode(base64PdfData);
                 String generatedPdfFileName = UUID.randomUUID().toString() + ".pdf";
+                String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+                String filepath = bucketUrl + generatedPdfFileName;
+                byte[] fileBytes = decodedPdfData;
+                AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-                File destFolder = new File(uploadDir);
-                if (!destFolder.exists()) {
-                    destFolder.mkdirs();
-                }
+                S3Client s3Client = S3Client.builder()
+                        .region(Region.AP_SOUTH_1)
+                        .credentialsProvider(() -> credentials)
+                        .build();
 
-                File dest = new File(destFolder, generatedPdfFileName);
+                PutObjectRequest request = PutObjectRequest.builder()
+                        .bucket("tnhb-property-docs")
+                        .key(generatedPdfFileName)
+                        .contentType("application/pdf")
+                        .build();
 
-                try {
-                    Files.write(dest.toPath(), decodedPdfData);
-                    websiteData.setFFloorPlanPdf(dest.getAbsolutePath());
-                } catch (IOException e) {
+                PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
 
-                }
+                websiteData.setFFloorPlanPdf(filepath);
+
             }
 
             if (websiteData.getFPocPicture() != null) {
                 String base64FileData = websiteData.getFPocPicture();
                 byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
                 String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+                String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+                String filepath = bucketUrl + generatedFileName;
+                byte[] fileBytes = decodedFileData;
+                AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-                File destFolder = new File(uploadDir);
-                if (!destFolder.exists()) {
-                    destFolder.mkdirs();
-                }
+                S3Client s3Client = S3Client.builder()
+                        .region(Region.AP_SOUTH_1)
+                        .credentialsProvider(() -> credentials)
+                        .build();
 
-                File dest = new File(destFolder, generatedFileName);
+                PutObjectRequest request = PutObjectRequest.builder()
+                        .bucket("tnhb-property-docs")
+                        .key(generatedFileName)
+                        .build();
 
-                try {
-                    Files.write(dest.toPath(), decodedFileData);
-                    websiteData.setFPocPicture(dest.getAbsolutePath());
-                } catch (IOException e) {
+                PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
 
-                }
+                websiteData.setFPocPicture(filepath);
+
             }
 
             if (websiteData.getFVideo() != null) {
                 String base64VideoData = websiteData.getFVideo();
                 byte[] decodedVideoData = Base64.getDecoder().decode(base64VideoData);
                 String generatedVideoFileName = UUID.randomUUID().toString() + ".mp4";
+                String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+                String filepath = bucketUrl + generatedVideoFileName;
+                byte[] fileBytes = decodedVideoData;
+                AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-                File destFolder = new File(uploadDir);
-                if (!destFolder.exists()) {
-                    destFolder.mkdirs();
-                }
+                S3Client s3Client = S3Client.builder()
+                        .region(Region.AP_SOUTH_1)
+                        .credentialsProvider(() -> credentials)
+                        .build();
 
-                File dest = new File(destFolder, generatedVideoFileName);
+                PutObjectRequest request = PutObjectRequest.builder()
+                        .bucket("tnhb-property-docs")
+                        .key(generatedVideoFileName)
+                        .build();
 
-                try {
-                    Files.write(dest.toPath(), decodedVideoData);
-                    websiteData.setFVideo(dest.getAbsolutePath());
-                } catch (IOException e) {
+                PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
 
-                }
+                websiteData.setFVideo(filepath);
+
             }
-
 
             savedWebsiteDataList.add(websiteData);
             savedWebsiteDataList = websiteDataRepo.saveAll(savedWebsiteDataList);
@@ -890,10 +924,130 @@ public class PropertyServiceImpl implements PropertyService {
         return savedWebsiteDataList;
     }
 
+
+
+    //Website MODULE - LOCAL FILE PATH
+//    @Transactional
 //    @Override
-//    public List<WebsiteData> getWebsiteData() {
-//        return websiteDataRepo.findAll();
+//    public List<WebsiteData> saveWebsiteData(List<WebsiteData> websiteDataList) {
+//        List<WebsiteData> savedWebsiteDataList = new ArrayList<>();
+//        List<String> savedPhotos = new ArrayList<>();
+//        for (WebsiteData websiteData : websiteDataList) {
+//            List<String> photoList = websiteData.getFPhoto();
+//            if (photoList != null && !photoList.isEmpty()) {
+//
+//                for (String base64FileData : photoList) {
+//                    byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//                    String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+//
+//                    File destFolder = new File(uploadDir);
+//                    if (!destFolder.exists()) {
+//                        destFolder.mkdirs();
+//                    }
+//
+//                    File dest = new File(destFolder, generatedFileName);
+//
+//                    try {
+//                        Files.write(dest.toPath(), decodedFileData);
+//                        savedPhotos.add(dest.getAbsolutePath());
+//                    } catch (IOException e) {
+//                        // Handle the exception
+//                    }
+//
+//
+//                }
+//                websiteData.setFPhoto(savedPhotos);
+//
+//            }
+//
+//            if (websiteData.getFFloorPlanPicture() != null) {
+//                String base64FileData = websiteData.getFFloorPlanPicture();
+//                byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//                String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+//
+//                File destFolder = new File(uploadDir);
+//                if (!destFolder.exists()) {
+//                    destFolder.mkdirs();
+//                }
+//
+//                File dest = new File(destFolder, generatedFileName);
+//
+//                try {
+//                    Files.write(dest.toPath(), decodedFileData);
+//                    websiteData.setFFloorPlanPicture(dest.getAbsolutePath());
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//
+//            if (websiteData.getFFloorPlanPdf() != null) {
+//                String base64PdfData = websiteData.getFFloorPlanPdf();
+//                byte[] decodedPdfData = Base64.getDecoder().decode(base64PdfData);
+//                String generatedPdfFileName = UUID.randomUUID().toString() + ".pdf";
+//
+//                File destFolder = new File(uploadDir);
+//                if (!destFolder.exists()) {
+//                    destFolder.mkdirs();
+//                }
+//
+//                File dest = new File(destFolder, generatedPdfFileName);
+//
+//                try {
+//                    Files.write(dest.toPath(), decodedPdfData);
+//                    websiteData.setFFloorPlanPdf(dest.getAbsolutePath());
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//
+//            if (websiteData.getFPocPicture() != null) {
+//                String base64FileData = websiteData.getFPocPicture();
+//                byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//                String generatedFileName = UUID.randomUUID().toString() + ".jpg";
+//
+//                File destFolder = new File(uploadDir);
+//                if (!destFolder.exists()) {
+//                    destFolder.mkdirs();
+//                }
+//
+//                File dest = new File(destFolder, generatedFileName);
+//
+//                try {
+//                    Files.write(dest.toPath(), decodedFileData);
+//                    websiteData.setFPocPicture(dest.getAbsolutePath());
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//
+//            if (websiteData.getFVideo() != null) {
+//                String base64VideoData = websiteData.getFVideo();
+//                byte[] decodedVideoData = Base64.getDecoder().decode(base64VideoData);
+//                String generatedVideoFileName = UUID.randomUUID().toString() + ".mp4";
+//
+//                File destFolder = new File(uploadDir);
+//                if (!destFolder.exists()) {
+//                    destFolder.mkdirs();
+//                }
+//
+//                File dest = new File(destFolder, generatedVideoFileName);
+//
+//                try {
+//                    Files.write(dest.toPath(), decodedVideoData);
+//                    websiteData.setFVideo(dest.getAbsolutePath());
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//
+//
+//            savedWebsiteDataList.add(websiteData);
+//            savedWebsiteDataList = websiteDataRepo.saveAll(savedWebsiteDataList);
+//        }
+//
+//        return savedWebsiteDataList;
 //    }
+
 
     public List<WebsiteModel> getAllWebsiteData() {
         List<Map<String, Object>> queryResults = websiteDataRepo.findAllUnitData();
@@ -1480,109 +1634,186 @@ public class PropertyServiceImpl implements PropertyService {
     @Transactional
     @Override
     public CustomerApplication saveCustomerApplication(CustomerApplication customerApplication) {
+
         if (customerApplication.getNativeOfTamilnadu() != null) {
             String base64FileData = customerApplication.getNativeOfTamilnadu();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
-                customerApplication.setNativeOfTamilnadu_filename(generatedFileName);
-                customerApplication.setNativeOfTamilnadu_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
 
-            }
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
+            customerApplication.setNativeOfTamilnadu_filename(generatedFileName);
+            customerApplication.setNativeOfTamilnadu_filepath(filepath);
         }
 
         if (customerApplication.getBirthCertificate() != null) {
             String base64FileData = customerApplication.getBirthCertificate();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setBirthCertificate_filename(generatedFileName);
-                customerApplication.setBirthCertificate_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setBirthCertificate_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getAadhaarProof() != null) {
             String base64FileData = customerApplication.getAadhaarProof();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setAadhaarProof_filename(generatedFileName);
-                customerApplication.setAadhaarProof_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setAadhaarProof_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getPanProof() != null) {
             String base64FileData = customerApplication.getPanProof();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setPanProof_filename(generatedFileName);
-                customerApplication.setPanProof_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setPanProof_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getIncomeCertificate() != null) {
             String base64FileData = customerApplication.getIncomeCertificate();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setIncomeCertificate_filename(generatedFileName);
-                customerApplication.setIncomeCertificate_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setIncomeCertificate_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getReservationCategoryProof() != null) {
             String base64FileData = customerApplication.getReservationCategoryProof();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setReservationCategoryProof_filename(generatedFileName);
-                customerApplication.setReservationCategoryProof_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setReservationCategoryProof_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getReservationSubCategoryProof() != null) {
             String base64FileData = customerApplication.getReservationSubCategoryProof();
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = UUID.randomUUID().toString() + ".pdf";
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+                    .contentType("application/pdf")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setReservationSubCategoryProof_filename(generatedFileName);
-                customerApplication.setReservationSubCategoryProof_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setReservationSubCategoryProof_filepath(filepath);
 
-            }
         }
 
 
@@ -1591,15 +1822,26 @@ public class PropertyServiceImpl implements PropertyService {
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = customerApplication.getPhoto_filename();
             String uniqueFileName = generatedFileName;
-            File dest = new File(uploadDir, generatedFileName);
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setPhoto_filename(generatedFileName);
-                customerApplication.setPhoto_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setPhoto_filepath(filepath);
 
-            }
         }
 
         if (customerApplication.getSignature() != null) {
@@ -1607,22 +1849,190 @@ public class PropertyServiceImpl implements PropertyService {
             byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
             String generatedFileName = customerApplication.getSignature_filename();
             String uniqueFileName = generatedFileName;
+            String bucketUrl = "http://tnhb-property-docs.s3-website.ap-south-1.amazonaws.com/";
+            String filepath = bucketUrl + generatedFileName;
+            byte[] fileBytes = decodedFileData;
+            AwsBasicCredentials credentials = AwsBasicCredentials.create("AKIAR4WRUXSBWFW47VVO", "iG602vjmGQXcs8CCk2NHyWaVGyfHMcN3eGhVsygl");
 
-            File dest = new File(uploadDir, generatedFileName);
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_1)
+                    .credentialsProvider(() -> credentials)
+                    .build();
 
-            try {
-                Files.write(dest.toPath(), decodedFileData);
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket("tnhb-property-docs")
+                    .key(generatedFileName)
+
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(fileBytes));
                 customerApplication.setSignature_filename(generatedFileName);
-                customerApplication.setSignature_filepath(dest.getAbsolutePath());
-            } catch (IOException e) {
+                customerApplication.setSignature_filepath(filepath);
 
-            }
           }
 
         int generatedApplicationNo = getNextSequentialApplicationNo();
         customerApplication.setApplicationNo(String.format("%07d", generatedApplicationNo));
         return customerApplicationRepo.save(customerApplication);
     }
+
+
+
+
+
+
+    //LOCAL PATH SAVE APPLICATION
+//    @Transactional
+//    @Override
+//    public CustomerApplication saveCustomerApplication(CustomerApplication customerApplication) {
+//        if (customerApplication.getNativeOfTamilnadu() != null) {
+//            String base64FileData = customerApplication.getNativeOfTamilnadu();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setNativeOfTamilnadu_filename(generatedFileName);
+//                customerApplication.setNativeOfTamilnadu_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getBirthCertificate() != null) {
+//            String base64FileData = customerApplication.getBirthCertificate();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setBirthCertificate_filename(generatedFileName);
+//                customerApplication.setBirthCertificate_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getAadhaarProof() != null) {
+//            String base64FileData = customerApplication.getAadhaarProof();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setAadhaarProof_filename(generatedFileName);
+//                customerApplication.setAadhaarProof_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getPanProof() != null) {
+//            String base64FileData = customerApplication.getPanProof();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setPanProof_filename(generatedFileName);
+//                customerApplication.setPanProof_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getIncomeCertificate() != null) {
+//            String base64FileData = customerApplication.getIncomeCertificate();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setIncomeCertificate_filename(generatedFileName);
+//                customerApplication.setIncomeCertificate_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getReservationCategoryProof() != null) {
+//            String base64FileData = customerApplication.getReservationCategoryProof();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setReservationCategoryProof_filename(generatedFileName);
+//                customerApplication.setReservationCategoryProof_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getReservationSubCategoryProof() != null) {
+//            String base64FileData = customerApplication.getReservationSubCategoryProof();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = UUID.randomUUID().toString() + ".pdf";
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setReservationSubCategoryProof_filename(generatedFileName);
+//                customerApplication.setReservationSubCategoryProof_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//
+//        if (customerApplication.getPhoto() != null) {
+//            String base64FileData = customerApplication.getPhoto();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = customerApplication.getPhoto_filename();
+//            String uniqueFileName = generatedFileName;
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setPhoto_filename(generatedFileName);
+//                customerApplication.setPhoto_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        if (customerApplication.getSignature() != null) {
+//            String base64FileData = customerApplication.getSignature();
+//            byte[] decodedFileData = Base64.getDecoder().decode(base64FileData);
+//            String generatedFileName = customerApplication.getSignature_filename();
+//            String uniqueFileName = generatedFileName;
+//
+//            File dest = new File(uploadDir, generatedFileName);
+//
+//            try {
+//                Files.write(dest.toPath(), decodedFileData);
+//                customerApplication.setSignature_filename(generatedFileName);
+//                customerApplication.setSignature_filepath(dest.getAbsolutePath());
+//            } catch (IOException e) {
+//
+//            }
+//        }
+//
+//        int generatedApplicationNo = getNextSequentialApplicationNo();
+//        customerApplication.setApplicationNo(String.format("%07d", generatedApplicationNo));
+//        return customerApplicationRepo.save(customerApplication);
+//    }
+
+
+
+
+
 
     //Auto-Generated Number
 
@@ -2124,6 +2534,23 @@ public class PropertyServiceImpl implements PropertyService {
             }
         }
         return detail;
+    }
+
+
+    @Override
+    public CAllottee CAllotteeSave(CAllottee cAllottee) {
+        return cAllotteeRepos.save(cAllottee);
+    }
+
+    @Override
+    public List<CAllottee> getAllCAllottee() {
+        return cAllotteeRepos.findAll();
+    }
+
+    @Override
+    public CAllottee getCAllottee(Long id) {
+        Optional<CAllottee> getidCAllottee = cAllotteeRepos.findById(id);
+        return getidCAllottee.orElse(null);
     }
 
 }
